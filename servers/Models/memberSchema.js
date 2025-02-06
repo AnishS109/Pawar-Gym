@@ -22,6 +22,9 @@ const memberschema = mongoose.Schema({
   monthsPaid:{
     type:Number
   },
+  activeStatus:{
+    type:String
+  }
 })
 
 const MemberSchema = mongoose.model("Members", memberschema)
