@@ -14,7 +14,7 @@ export const Addmember = async (req, res) => {
     const paymentDate = new Date(joinDate);
 
     const nextDueDate = new Date(paymentDate);
-    nextDueDate.setDate(nextDueDate.getDate() + monthsPaid * 29); 
+    nextDueDate.setDate(nextDueDate.getDate() + monthsPaid * 30); 
 
     nextDueDate.setUTCHours(0, 0, 0, 0); 
 
@@ -67,7 +67,7 @@ export const updateActiveStatus = async(req, res) => {
   }
 }
 
-// ---------------- UPDATING PAYMENT DATE & CONFIRMATION DATE --------------------
+// ---------------- UPDATING PAYMENT DATE & NEXT DUE DATE --------------------
 
 export const updateNextDueDate = async(req, res) => {
   const {name, phoneNumber, months} = req.body
@@ -85,11 +85,12 @@ export const updateNextDueDate = async(req, res) => {
       const paymentDate = new Date();
       const nextDueDate = new Date(paymentDate);
 
-      nextDueDate.setDate(nextDueDate.getDate() + months * 29 + remainingDays);
+      nextDueDate.setDate(nextDueDate.getDate() + months * 30 + remainingDays);
       nextDueDate.setUTCHours(0, 0, 0, 0);
 
       user.paymentDate = paymentDate;
       user.nextDueDate = nextDueDate;
+      user.activeStatus = "true"
       await user.save();
 
       return res.status(200).json({ message: "Payment Status Updated" });
@@ -98,12 +99,13 @@ export const updateNextDueDate = async(req, res) => {
       const paymentDate = new Date();
 
       const nextDueDate = new Date(paymentDate);
-      nextDueDate.setDate(nextDueDate.getDate() + months * 29); 
+      nextDueDate.setDate(nextDueDate.getDate() + months * 30); 
   
       nextDueDate.setUTCHours(0, 0, 0, 0);
 
       user.paymentDate = paymentDate
       user.nextDueDate = nextDueDate
+      user.activeStatus = "true"
       await user.save()
       return res.status(200).json({message:"Payment Status Updated"})
     } 

@@ -39,8 +39,8 @@ const Members = () => {
   const [confirmloading, setConfirmLoading] = useState(false)
   const [memberData, setMemberData] = useState([]);
   const [modalMsg, setModalMsg] = useState({open:false, msg:"", severity:""})
-
-  // console.log(offlineName);
+  const [searchText, setSearchText] = useState("")
+  const [toggleStatus, setToggleStatus] = useState("")
 
 // -----------------------------------------------------------------------------
 
@@ -105,7 +105,8 @@ const Members = () => {
     const serverResponse = {
       name:data.name,
       phoneNumber:data.phoneNumber,
-      months
+      months,
+      activeStatus:"true"
     }
 
     try {
@@ -141,11 +142,72 @@ const getRowBackgroundColor = (nextDueDate) => {
   }
 };
 
+// -----------------------------------------------------------------------------
 
+const filteredData = memberData
+  .filter((data) => data.activeStatus !== "false") 
+  .filter((data) =>
+    data.name.toLowerCase().includes(searchText.toLowerCase())
+  )
+  .filter((data) => {
+    const bgColor = getRowBackgroundColor(data.nextDueDate);
+
+    if (toggleStatus === "red" && bgColor.includes("bg-red-500")) {
+      return true;
+    }
+    if (toggleStatus === "yellow" && bgColor.includes("bg-yellow-500")) {
+      return true; 
+    }
+    if (toggleStatus === "green" && bgColor.includes("bg-green-500")) {
+      return true; 
+    }
+    if (toggleStatus === "") {
+      return true;
+    }
+    return false;
+  });
 
   return (
     <Layout>
       <Box className="h-screen w-screen bg-gradient-to-r from-red-900 via-black to-red-900 overflow-auto">
+      
+      <Box className="px-2">
+      <TextField
+        label="Search by Name"
+        variant="outlined"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        fullWidth
+        className="my-2"
+        InputLabelProps={{ className: "text-white" }}
+        sx={{
+          input: { color: "white" },
+          "& .MuiOutlinedInput-root": {
+            "& fieldset": { borderColor: "white" },
+            "&:hover fieldset": { borderColor: "white" },
+            "&.Mui-focused fieldset": { borderColor: "white" },
+          },
+          "& .MuiInputLabel-root": { color: "white" },
+          "& .MuiInputLabel-root.Mui-focused": { color: "white" },
+          }}
+        />
+      </Box>
+
+      <Box className="flex justify-evenly mb-2">
+        <Box onClick={() => setToggleStatus("")} className="bg-white/30 backdrop-blur-md h-full w-full border-none p-2">
+        <Typography className="text-nowrap text-center text-white font-bold">All</Typography>
+        </Box>
+        <Box onClick={() => setToggleStatus("green")} className="bg-green-500/70 backdrop-blur-md h-full w-full border-none p-2">
+        <Typography className="text-nowrap text-center text-white font-bold">Done</Typography>
+        </Box>
+        <Box onClick={() => setToggleStatus("red")} className="bg-red-500/70 backdrop-blur-md h-full w-full border-none p-2">
+        <Typography className="text-nowrap text-center text-white font-bold">Pending</Typography>
+        </Box>
+        <Box onClick={() => setToggleStatus("yellow")} className="bg-yellow-500/70 backdrop-blur-md h-full w-full border-none p-2">
+        <Typography className="text-nowrap text-center text-white font-bold">Upcoming</Typography>
+        </Box>
+      </Box>
+
         {loading ? (
           <Box className="h-[300px] w-screen flex justify-center items-center">
             <CircularProgress className="text-white"/>
@@ -166,8 +228,7 @@ const getRowBackgroundColor = (nextDueDate) => {
             </TableRow>
           </TableHead>
           <TableBody>
-            {memberData
-            .filter((data) => data.activeStatus !== "false")
+            {filteredData
             .map((data) => (
               <TableRow key={data._id} className={getRowBackgroundColor(data.nextDueDate)}>
                 <TableCell className="font-bold text-[15px]">{data.name}</TableCell>
